@@ -26,7 +26,7 @@ task :version do
   options = {
     :description => 'FubuMVC.Core.Assets',
     :product_name => 'FubuMVC.Core.Assets',
-    :copyright => 'Copyright 2012 FubuMVC.Core.Assets. All rights reserved.',
+    :copyright => 'Copyright 2012 Jeremy D. Miller, Joshua Arnold, Corey Kaylor. All rights reserved.',
     :trademark => commit,
     :version => asm_version,
     :file_version => build_number,
