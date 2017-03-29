@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -54,6 +55,10 @@ namespace FubuMVC.Tests.Assets
         [SetUp]
         public void SetUp()
         {
+            var dir = Path.GetDirectoryName(typeof(AssetFileGraphBuilderActivatorIntegratedTester).Assembly.CodeBase);
+            dir = new Uri(dir).LocalPath;
+            Directory.SetCurrentDirectory(dir);
+
             packageDirectory = ".".ToFullPath();
             _packages = new List<IPackageInfo>();
 

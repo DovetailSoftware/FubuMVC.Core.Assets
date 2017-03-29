@@ -26,3 +26,5 @@ results
 *.DotSettings.user
 bottles.cmd
 src/FubuMVC.Core.Assets.IntegrationTesting/fubu-content/
+Gemfile.lock
+src/.vs/

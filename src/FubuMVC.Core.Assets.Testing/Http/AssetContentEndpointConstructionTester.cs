@@ -1,6 +1,5 @@
 using System.Linq;
 using FubuMVC.Core.Assets;
-using FubuMVC.Core.Assets.Caching;
 using FubuMVC.Core.Assets.Files;
 using FubuMVC.Core.Assets.Http;
 using FubuMVC.Core.Caching;
@@ -29,7 +28,6 @@ namespace FubuMVC.Tests.Assets.Http
         #endregion
 
         private BehaviorChain theChain;
-        private AssetContentCache theContentCache;
 
         [Test]
         public void the_chain_should_absolutely_not_require_session_state()

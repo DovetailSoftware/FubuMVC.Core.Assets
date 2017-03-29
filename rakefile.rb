@@ -1,124 +1,73 @@
-COMPILE_TARGET = ENV['config'].nil? ? "Debug" : ENV['config'] # Keep this in sync w/ VS settings since Mono is case-sensitive
-CLR_TOOLS_VERSION = "v4.0.30319"
-
-buildsupportfiles = Dir["#{File.dirname(__FILE__)}/buildsupport/*.rb"]
-
-if( ! buildsupportfiles.any? )
-  # no buildsupport, let's go get it for them.
-  sh 'git submodule update --init' unless buildsupportfiles.any?
-  buildsupportfiles = Dir["#{File.dirname(__FILE__)}/buildsupport/*.rb"]
-end
-
-# nope, we still don't have buildsupport. Something went wrong.
-raise "Run `git submodule update --init` to populate your buildsupport folder." unless buildsupportfiles.any?
-
-buildsupportfiles.each { |ext| load ext }
-
-include FileTest
-require 'albacore'
-load "VERSION.txt"
-
-RESULTS_DIR = "results"
-PRODUCT = "FubuMVC.Core.Assets"
-COPYRIGHT = 'Copyright 2012 FubuMVC.Core.Assets. All rights reserved.';
-COMMON_ASSEMBLY_INFO = 'src/CommonAssemblyInfo.cs';
-BUILD_DIR = File.expand_path("build")
-ARTIFACTS = File.expand_path("artifacts")
-
+COMPILE_TARGET = ENV['config'].nil? ? "debug" : ENV['config']
+BUILD_VERSION = '100.0.0'
 tc_build_number = ENV["BUILD_NUMBER"]
 build_revision = tc_build_number || Time.new.strftime('5%H%M')
-BUILD_NUMBER = "#{BUILD_VERSION}.#{build_revision}"
+build_number = "#{BUILD_VERSION}.#{build_revision}"
+BUILD_NUMBER = build_number 
+msbuild = '"C:\Program Files (x86)\MSBuild\14.0\Bin\msbuild.exe"'
 
-props = { :stage => BUILD_DIR, :artifacts => ARTIFACTS }
-
-desc "**Default**, compiles and runs tests"
-task :default => [:compile, :unit_test]
-
-desc "Target used for the CI server"
-task :ci => [:update_all_dependencies, :default, :history, :package]
+desc 'Compile the code'
+task :compile => [:clean, :version] do
+  sh "#{msbuild} src/FubuMVC.Core.Assets.sln /property:Configuration=#{COMPILE_TARGET} /v:m /t:rebuild /nr:False /maxcpucount:8"
+end
 
 desc "Update the version information for the build"
-assemblyinfo :version do |asm|
-  asm_version = BUILD_VERSION + ".0"
+task :version do
+  asm_version = build_number
   
   begin
     commit = `git log -1 --pretty=format:%H`
   rescue
     commit = "git unavailable"
   end
-  puts "##teamcity[buildNumber '#{BUILD_NUMBER}']" unless tc_build_number.nil?
-  puts "Version: #{BUILD_NUMBER}" if tc_build_number.nil?
-  asm.trademark = commit
-  asm.product_name = PRODUCT
-  asm.description = BUILD_NUMBER
-  asm.version = asm_version
-  asm.file_version = BUILD_NUMBER
-  asm.custom_attributes :AssemblyInformationalVersion => asm_version
-  asm.copyright = COPYRIGHT
-  asm.output_file = COMMON_ASSEMBLY_INFO
+  puts "##teamcity[buildNumber '#{build_number}']" unless tc_build_number.nil?
+  puts "Version: #{build_number}" if tc_build_number.nil?
+  
+  options = {
+    :description => 'FubuMVC.Core.Assets',
+    :product_name => 'FubuMVC.Core.Assets',
+    :copyright => 'Copyright 2012 FubuMVC.Core.Assets. All rights reserved.',
+    :trademark => commit,
+    :version => asm_version,
+    :file_version => build_number,
+    :informational_version => asm_version
+  }
+  
+  puts "Writing src/CommonAssemblyInfo.cs..."
+  File.open('src/CommonAssemblyInfo.cs', 'w') do |file|
+    file.write "using System.Reflection;\n"
+    file.write "using System.Runtime.InteropServices;\n"
+    file.write "[assembly: AssemblyDescription(\"#{options[:description]}\")]\n"
+    file.write "[assembly: AssemblyProduct(\"#{options[:product_name]}\")]\n"
+    file.write "[assembly: AssemblyCopyright(\"#{options[:copyright]}\")]\n"
+    file.write "[assembly: AssemblyTrademark(\"#{options[:trademark]}\")]\n"
+    file.write "[assembly: AssemblyVersion(\"#{options[:version]}\")]\n"
+    file.write "[assembly: AssemblyFileVersion(\"#{options[:file_version]}\")]\n"
+    file.write "[assembly: AssemblyInformationalVersion(\"#{options[:informational_version]}\")]\n"
+  end
 end
 
 desc "Prepares the working directory for a new build"
-task :clean => [:update_buildsupport] do
-	
-	FileUtils.rm_rf props[:stage]
-    # work around nasty latency issue where folder still exists for a short while after it is removed
-    waitfor { !exists?(props[:stage]) }
-	Dir.mkdir props[:stage]
-    
-	Dir.mkdir props[:artifacts] unless exists?(props[:artifacts])
+task :clean do
+  FileUtils.rm_rf 'artifacts'
+  Dir.mkdir 'artifacts'
 end
 
-def waitfor(&block)
-  checks = 0
-  until block.call || checks >10 
-    sleep 0.5
-    checks += 1
-  end
-  raise 'waitfor timeout expired' if checks > 10
+desc 'Run the unit tests'
+task :test => [:compile, :fast_test, :fast_integration_test] do
 end
 
-desc "Compiles the app"
-task :compile => [:restore_if_missing, :clean, :version] do
-  FileUtils.rm_rf 'src/FubuMVC.Core.Assets.IntegrationTesting/fubu-content'
-  bottles("assembly-pak src/FubuMVC.Core.Assets")
-
-  MSBuildRunner.compile :compilemode => COMPILE_TARGET, :solutionfile => 'src/FubuMVC.Core.Assets.sln', :clrversion => CLR_TOOLS_VERSION
-
-  target = COMPILE_TARGET.downcase
+desc 'Run the unit tests without compile'
+task :fast_test do
+  # Note: src/FubuMVC.AspNetTesting/bin/#{COMPILE_TARGET}/FubuMVC.AspNetTesting.dll is currently build for IIS6 and blows up with IIS7 and later unless you have IIS WMI installed.
+  #TODO: Figure out a better way to do the ASP.NET testing (IISExpress?)
+  sh "src/packages/NUnit.ConsoleRunner.3.6.1/tools/nunit3-console.exe src/FubuMVC.Core.Assets.Testing/bin/#{COMPILE_TARGET}/FubuMVC.Core.Assets.Testing.dll"
 end
 
-def copyOutputFiles(fromDir, filePattern, outDir)
-  Dir.glob(File.join(fromDir, filePattern)){|file| 		
-	copy(file, outDir, :preserve => true) if File.file?(file)
-  } 
-end
+desc 'Run the integration tests'
+task :integration_test => [:compile, :fast_integration_test]
 
-desc "Runs unit tests"
-task :test => [:unit_test]
-
-desc "Run unit tests"
-task :unit_test do 
-  runner = NUnitRunner.new :compilemode => COMPILE_TARGET, :source => 'src', :platform => 'x86'
-  tests = Array.new
-  file = File.new("TESTS.txt", "r")
-  assemblies = file.readlines()
-  assemblies.each do |a|
-	test = a.gsub("\r\n", "").gsub("\n", "")
-	tests.push(test)
-  end
-  file.close
-  
-  runner.executeTests tests
-end
-
-def self.bottles(args)
-  bottles = Platform.runtime(Nuget.tool("Bottles", "BottleRunner.exe"))
-  sh "#{bottles} #{args}"
-end
-
-
-def self.fubu(args)
-  fubu = Platform.runtime("src/fubu/bin/#{COMPILE_TARGET}/fubu.exe")
-  sh "#{fubu} #{args}"
+desc "Runs the integration tests"
+task :fast_integration_test => :compile do
+  sh "src/packages/NUnit.ConsoleRunner.3.6.1/tools/nunit3-console.exe src/FubuMVC.Core.Assets.IntegrationTesting/bin/#{COMPILE_TARGET}/FubuMVC.Core.Assets.IntegrationTesting.dll"
 end

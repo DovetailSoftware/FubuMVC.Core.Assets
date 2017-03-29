@@ -16,7 +16,7 @@ namespace FubuMVC.Tests.Assets
         private PackageLog theLog;
 
 
-        [TestFixtureSetUp]
+        [OneTimeSetUp]
         public void SetUp()
         {
             thePolicies = new ITransformerPolicy[]{

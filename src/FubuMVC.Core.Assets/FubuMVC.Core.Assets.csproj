@@ -31,26 +31,20 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Bottles">
-      <HintPath>..\packages\Bottles.1.0.0.441\lib\Bottles.dll</HintPath>
+    <Reference Include="Bottles, Version=100.0.0.10, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Bottles.100.0.0.10\lib\Bottles.dll</HintPath>
     </Reference>
-    <Reference Include="FubuCore">
-      <HintPath>..\packages\FubuCore.1.0.0.225\lib\FubuCore.dll</HintPath>
+    <Reference Include="FubuCore, Version=100.0.0.12, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FubuCore.100.0.0.12\lib\FubuCore.dll</HintPath>
     </Reference>
-    <Reference Include="FubuLocalization">
-      <HintPath>..\packages\FubuLocalization.0.9.5.124\lib\FubuLocalization.dll</HintPath>
+    <Reference Include="FubuLocalization, Version=100.0.0.3, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FubuLocalization.100.0.0.3\lib\FubuLocalization.dll</HintPath>
     </Reference>
-    <Reference Include="FubuMVC.Core">
-      <HintPath>..\packages\FubuMVC.Core.1.0.0.1402\lib\net40\FubuMVC.Core.dll</HintPath>
+    <Reference Include="FubuMVC.Core, Version=100.0.0.8, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\FubuMVC.Core.100.0.0.8\lib\net40\FubuMVC.Core.dll</HintPath>
     </Reference>
-    <Reference Include="FubuMVC.Core.UI">
-      <HintPath>..\packages\FubuMVC.Core.UI.1.0.0.212\lib\net40\FubuMVC.Core.UI.dll</HintPath>
-    </Reference>
-    <Reference Include="FubuMVC.Core.View">
-      <HintPath>..\packages\FubuMVC.Core.View.1.0.0.191\lib\net40\FubuMVC.Core.View.dll</HintPath>
-    </Reference>
-    <Reference Include="HtmlTags">
-      <HintPath>..\packages\HtmlTags.1.2.0.145\lib\4.0\HtmlTags.dll</HintPath>
+    <Reference Include="HtmlTags, Version=1.2.0.150, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\HtmlTags.1.2.0.150\lib\4.0\HtmlTags.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -182,16 +176,9 @@
     <Compile Include="WarmUpSetsForCombinationPolicy.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include=".package-manifest" />
-    <None Include="global.asset.config">
-      <SubType>Designer</SubType>
-    </None>
     <None Include="packages.config">
       <SubType>Designer</SubType>
     </None>
-    <EmbeddedResource Include="pak-Config.zip" />
-    <EmbeddedResource Include="pak-Data.zip" />
-    <EmbeddedResource Include="pak-WebContent.zip" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Content\scripts\jquery-1.8.2.min.js" />
