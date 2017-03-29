@@ -54,20 +54,10 @@ task :clean do
 end
 
 desc 'Run the unit tests'
-task :test => [:compile, :fast_test, :fast_integration_test] do
+task :test => [:compile, :fast_test] do
 end
 
 desc 'Run the unit tests without compile'
 task :fast_test do
-  # Note: src/FubuMVC.AspNetTesting/bin/#{COMPILE_TARGET}/FubuMVC.AspNetTesting.dll is currently build for IIS6 and blows up with IIS7 and later unless you have IIS WMI installed.
-  #TODO: Figure out a better way to do the ASP.NET testing (IISExpress?)
   sh "src/packages/NUnit.ConsoleRunner.3.6.1/tools/nunit3-console.exe src/FubuMVC.Core.Assets.Testing/bin/#{COMPILE_TARGET}/FubuMVC.Core.Assets.Testing.dll"
-end
-
-desc 'Run the integration tests'
-task :integration_test => [:compile, :fast_integration_test]
-
-desc "Runs the integration tests"
-task :fast_integration_test => :compile do
-  sh "src/packages/NUnit.ConsoleRunner.3.6.1/tools/nunit3-console.exe src/FubuMVC.Core.Assets.IntegrationTesting/bin/#{COMPILE_TARGET}/FubuMVC.Core.Assets.IntegrationTesting.dll"
 end
