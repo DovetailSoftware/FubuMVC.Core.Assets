@@ -12,7 +12,6 @@ using NUnit.Framework;
 using FubuTestingSupport;
 using System.Linq;
 using Rhino.Mocks;
-using FubuMVC.StructureMap;
 using StructureMap;
 
 namespace FubuMVC.Tests.Assets

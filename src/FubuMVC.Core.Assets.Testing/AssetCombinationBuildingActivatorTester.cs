@@ -8,7 +8,6 @@ using FubuMVC.Core.Assets.Combination;
 using FubuMVC.Core.Assets.Files;
 using FubuMVC.Core.Bootstrapping;
 using FubuMVC.Core.Runtime;
-using FubuMVC.StructureMap;
 using FubuTestingSupport;
 using NUnit.Framework;
 using StructureMap;
