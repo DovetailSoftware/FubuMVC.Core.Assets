@@ -12,7 +12,7 @@
     <description>The FubuMVC Asset Pipeline</description>
     <tags>web framework mvc fubumvc</tags>
     <dependencies>
-      <dependency id="FubuMVC.Core" version="100.0.0.8" />
+      <dependency id="FubuMVC.Core" version="100.0.0.9" />
     </dependencies>
   </metadata>
   <files>
